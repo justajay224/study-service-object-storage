@@ -7,3 +7,4 @@ backblaze_controller = BackblazeController()
 
 router.add_api_route("/upload", backblaze_controller.upload_file, methods=["POST"])
 router.add_api_route("/files", backblaze_controller.list_files, methods=["GET"])
+router.add_api_route("/download/{file_id}", backblaze_controller.download_file, methods=["GET"])
