@@ -1,6 +1,7 @@
 from fastapi import FastAPI
-from route.backblaze_route import router as backblaze_router
+from route.index import all_routers
 
 app = FastAPI()
 
-app.include_router(backblaze_router)
+for router in all_routers:
+    app.include_router(router)
