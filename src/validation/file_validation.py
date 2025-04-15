@@ -1,10 +1,8 @@
-from typing import List
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf'}
+MAX_FILE_SIZE = 10 * 1024 * 1024  
 
-# validasi jenis file
-def validate_file_extension(filename: str, allowed_extensions: List[str] = ['png', 'jpg', 'jpeg', 'pdf']) -> bool:
-    extension = filename.split('.')[-1].lower()
-    return extension in allowed_extensions
+def validate_file_extension(filename: str) -> bool:
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# validasi ukuran
-def validate_file_size(file_size: int, max_size: int = 10 * 1024 * 1024) -> bool:
-    return file_size <= max_size
+def validate_file_size(file_size: int) -> bool:
+    return file_size <= MAX_FILE_SIZE

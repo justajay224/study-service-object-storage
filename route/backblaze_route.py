@@ -1,10 +1,17 @@
-from fastapi import APIRouter, UploadFile, File
-from src.controller.backblaze_controller import BackblazeController
+from fastapi import APIRouter
+from src.controller.backblaze_controller import BackblazeController, UploadRequest
 
 router = APIRouter()
+controller = BackblazeController()
 
-backblaze_controller = BackblazeController()
+@router.post("/upload")
+async def upload_file(request: UploadRequest):
+    return await controller.upload_file(request)
 
-router.add_api_route("/upload", backblaze_controller.upload_file, methods=["POST"])
-router.add_api_route("/files", backblaze_controller.list_files, methods=["GET"])
-router.add_api_route("/download/{file_id}", backblaze_controller.download_file, methods=["GET"])
+@router.get("/files")
+async def list_files():
+    return await controller.list_files()
+
+@router.get("/download/{file_id}")
+async def download_file(file_id: str):
+    return await controller.download_file(file_id)

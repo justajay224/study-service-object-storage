@@ -1,91 +1,88 @@
-from fastapi import UploadFile, File, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import HTTPException
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+import base64
+from typing import Optional
 from src.service.backblaze_service import BackblazeService
 from src.validation.file_validation import validate_file_extension, validate_file_size
-from src.model.models import ApiResponse, ResponseModel, MetaDataModel
-from utils.encrypt_decrypt import encrypt_file, decrypt_file
-from utils.response_api import generate_response, generate_error_response
-from dotenv import load_dotenv
-from pprint import pprint
-import os
-import base64
+
+class UploadRequest(BaseModel):
+    filename: str
+    file_data: str 
 
 class BackblazeController:
     def __init__(self):
-        self.backblaze_service = BackblazeService()
-        
-    def _get_encryption_key(self):
-        load_dotenv() 
-        return os.getenv("ENCRYPTION_KEY")  
+        self.service = BackblazeService()
 
-    async def upload_file(self, file: UploadFile = File(...)):
-        
-        password = self._get_encryption_key()
-        
-        file_data = await file.read()
+    async def upload_file(self, request: UploadRequest):
         # Validasi ekstensi file
-        if not validate_file_extension(file.filename):
-            return generate_error_response("File extension is not allowed. Only PNG, JPG, JPEG, and PDF are allowed.", 400, "0001")
+        if not validate_file_extension(request.filename):
+            return self._generate_error("Invalid file extension", 400, "0001")
 
-        # Validasi ukuran file
-        if not validate_file_size(len(file_data)):
-            return generate_error_response("File is too large. Maximum size is 10MB.", 400, "0002")
-        
-        # Enkripsi file
-        encrypted_file_data = encrypt_file(file_data, password) 
-        
-        print(f"Panjang file_data (original): {len(file_data)}")
-        print(f"Panjang encrypted_data (base64): {len(password)}")
-        print(f"Panjang encrypted_data_raw (decode base64): {len(base64.b64decode(password))}") 
-
-        # Upload file ke Backblaze
-        uploaded_file_id = self.backblaze_service.upload_file(file.filename, encrypted_file_data, password)
-
-        # response data
-        response_data = ResponseModel(
-            fileId=uploaded_file_id,
-            fileName=file.filename,
-            message="File uploaded and encrypted successfully",
-            status="Success"
-        )
-
-        meta_data = MetaDataModel(
-            message="OK",
-            code=201,
-            response_code="0001"
-        )
-        
-        return generate_response(metaData=meta_data.dict(), data=response_data.dict())
-
-    # daftar file
-    async def list_files(self):
+        # Validasi ukuran file 
         try:
-            files = self.backblaze_service.list_files()
-
-            meta_data = MetaDataModel(
-                message="OK",
-                code=200,
-                response_code="0000"
-            )
-            return generate_response(metaData=meta_data.dict(), data=files)
-
+            decoded_data = base64.b64decode(request.file_data)
         except Exception as e:
-            error_message = f"Error while fetching files: {str(e)}"
-            return generate_error_response(message=error_message, code=500, response_code="0002")
-    
-    # donwload
+            return self._generate_error("Invalid base64", 400, "0003")
+
+        if not validate_file_size(len(decoded_data)):
+            return self._generate_error("File too large", 400, "0002")
+
+
+        try:
+            file_id = self.service.upload_file(request.filename, request.file_data)
+            return self._generate_success(
+                data={"fileId": file_id}, 
+                message="File uploaded", 
+                code=201
+            )
+        except Exception as e:
+            return self._generate_error(str(e), 500, "0004")
+
     async def download_file(self, file_id: str):
         try:
-            password = self._get_encryption_key()
-            decrypted_data = self.backblaze_service.download_file(file_id, password )
-            file_info = self.backblaze_service.bucket.get_file_info_by_id(file_id)
-            original_filename = file_info.file_name
-            
-            return StreamingResponse(
-                content=iter([decrypted_data]),
-                media_type="application/octet-stream",
-                headers={"Content-Disposition": f"attachment; filename={original_filename}"}
+            base64_data = self.service.download_file(file_id)
+            return self._generate_success(
+                data={"file_data": base64_data},
+                message="OK",
+                code=200
             )
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error: {str(e)}") 
-   
+            return self._generate_error(str(e), 500, "0005")
+
+    async def list_files(self):
+        try:
+            files = self.service.list_files()
+            return self._generate_success(
+                data={"files": files},
+                message="OK",
+                code=200
+            )
+        except Exception as e:
+            return self._generate_error(str(e), 500, "0006")
+
+    def _generate_success(self, data: dict, message: str, code: int):
+        return JSONResponse(
+            content={
+                "metaData": {
+                    "message": message,
+                    "code": code,
+                    "response_code": "0000"  
+                },
+                "data": data
+            },
+            status_code=code
+        )
+
+    def _generate_error(self, message: str, code: int, response_code: str):
+        return JSONResponse(
+            content={
+                "metaData": {
+                    "message": message,
+                    "code": code,
+                    "response_code": response_code
+                },
+                "data": None
+            },
+            status_code=code
+        )
