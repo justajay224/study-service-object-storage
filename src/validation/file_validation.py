@@ -1,4 +1,4 @@
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 MAX_FILE_SIZE = 10 * 1024 * 1024  
 
 def validate_file_extension(filename: str) -> bool:
