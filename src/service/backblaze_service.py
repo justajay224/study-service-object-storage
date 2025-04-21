@@ -13,7 +13,6 @@ class BackblazeService:
         self.encryption_key = base64.b64decode(key_base64)
         # print("[DEBUG] Key (base64):", os.getenv("ENCRYPTION_KEY"))
         # print("[DEBUG] Key length (bytes):", len(self.encryption_key))
-        # Validasi panjang key
         if len(self.encryption_key) != 32:
             raise ValueError("Encryption key harus 32 byte (AES-256)!")
         

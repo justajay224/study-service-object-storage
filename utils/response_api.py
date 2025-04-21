@@ -13,6 +13,7 @@ def generate_success(data: dict, message: str, code: int, response_code: str = "
         status_code=code
     )
 
+
 def generate_error(message: str, code: int, response_code: str) -> JSONResponse:
     return JSONResponse(
         content={

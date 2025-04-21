@@ -16,10 +16,10 @@ async def get_all_files():
 async def get_file_byID(file_id: str):
     return await controller.get_file_byID(file_id)
 
-@router.patch("/update/{file_id}")
+@router.patch("/images/{file_id}")
 async def update_file(file_id: str, request: UpdateRequest):
     return await controller.update_file(file_id, request)
 
-@router.delete("/delete/{file_id}")
+@router.delete("/images/{file_id}")
 async def delete_file(file_id: str):
     return await controller.delete_file(file_id)

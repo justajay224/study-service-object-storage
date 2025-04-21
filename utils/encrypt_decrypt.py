@@ -11,6 +11,7 @@ def encrypt_file(file_data: bytes, key: bytes) -> bytes:
     
     return nonce + tag + ciphertext
 
+
 def decrypt_file(encrypted_data: bytes, key: bytes) -> bytes:
     nonce = encrypted_data[:12]
     tag = encrypted_data[12:28]
