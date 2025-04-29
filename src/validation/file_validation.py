@@ -1,5 +1,5 @@
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-MAX_FILE_SIZE = 10 * 1024 * 1024  
+MAX_FILE_SIZE = 5 * 1024 * 1024  
 
 def validate_file_extension(filename: str) -> bool:
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

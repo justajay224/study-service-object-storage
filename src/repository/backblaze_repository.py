@@ -15,8 +15,7 @@ class BackblazeRepository:
             file_data, 
             filename, 
             file_info={ 
-                'original_filename': filename,
-                'encryption_type': 'AES-256'
+                'original_filename': filename
             }
         )
         return uploaded_file.id_
@@ -41,7 +40,7 @@ class BackblazeRepository:
             file_info = self.bucket.get_file_info_by_id(file_id)
             self.bucket.delete_file_version(file_id, file_info.file_name)
         except Exception as e:
-            raise ValueError(f"Gagal menghapus file: {str(e)}")
+            raise ValueError(f"{str(e)}")
     
     def update_file(self, file_id: str, new_filename: str, new_file_data: bytes) -> str:
         self.delete_file(file_id)
