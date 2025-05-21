@@ -1,23 +1,14 @@
 from src.repository.backblaze_repository import BackblazeRepository
 import base64
 from utils.encrypt_decrypt import encrypt_file, decrypt_file
-from dotenv import load_dotenv
-import os
+from config.aes_config import KEY
 
 class BackblazeService:
     def __init__(self):
         self.repository = BackblazeRepository()
-        load_dotenv()
-        self.encryption_key = os.getenv("ENCRYPTION_KEY") 
-        key_base64 = os.getenv("ENCRYPTION_KEY")
-        self.encryption_key = base64.b64decode(key_base64)
-        # print("[DEBUG] Key (base64):", os.getenv("ENCRYPTION_KEY"))
-        # print("[DEBUG] Key length (bytes):", len(self.encryption_key))
-        if len(self.encryption_key) != 32:
-            raise ValueError("Encryption key harus 32 byte (AES-256)!")
+        self.encryption_key = KEY
         
     def upload_file(self, filename: str, base64_data: str) -> str:
-        # Validasi
         try:
             decoded_data = base64.b64decode(base64_data)
         except Exception as e:
@@ -28,8 +19,7 @@ class BackblazeService:
             encrypted_data = encrypt_file(decoded_data, self.encryption_key)
         except ValueError as e:
             raise ValueError(f"Encryption failed: {str(e)}") from e
-        
-        
+          
         return self.repository.upload_file(filename, encrypted_data)
 
     def get_all_files(self):

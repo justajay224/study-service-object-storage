@@ -1,8 +1,5 @@
-from fastapi import HTTPException
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import base64
-from typing import Optional
 from src.service.backblaze_service import BackblazeService
 from utils.response_api import generate_success, generate_error 
 from src.validation.file_validation import validate_file_extension, validate_file_size
@@ -26,6 +23,9 @@ class BackblazeController:
             decoded_data = base64.b64decode(request.file_data)
         except Exception as e:
             return generate_error("Invalid base64", 400, "0003")
+
+        if len(decoded_data) == 0:
+            return generate_error("File data is empty", 400, "0005")
 
         if not validate_file_size(len(decoded_data)):
             return generate_error("File too large", 400, "0002")
@@ -71,6 +71,9 @@ class BackblazeController:
         except Exception as e:
             return generate_error("Invalid base64", 400, "0008")
 
+        if len(decoded_data) == 0:
+            return generate_error("File data is empty", 400, "0005")
+
         if not validate_file_size(len(decoded_data)):
             return generate_error("File too large", 400, "0002")
         try:
@@ -92,7 +95,6 @@ class BackblazeController:
                 code=200
             )
         except Exception as e:
-            # Handle error spesifik untuk file tidak ditemukan
             if "not found" in str(e).lower():
                 return generate_error("File not found", 404, "0010")
             return generate_error(str(e), 500, "0010")
