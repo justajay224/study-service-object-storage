@@ -25,10 +25,14 @@ class BackblazeService:
     def get_all_files(self):
         return self.repository.get_all_files()
 
-    def get_file_byID(self, file_id: str) -> str:
-        encrypted_data = self.repository.get_file_byID(file_id)
+    def get_all_files(self):
+        return self.repository.get_all_files()
+
+    
+    def get_file_byID(self, file_id: str) -> tuple[bytes, str]:
+        encrypted_data, filename = self.repository.get_file_byID(file_id)
         decrypted_data = decrypt_file(encrypted_data, self.encryption_key)
-        return base64.b64encode(decrypted_data).decode("utf-8")
+        return decrypted_data, filename
     
     def update_file(self, file_id: str, new_filename: str, base64_data: str) -> str:
         try:

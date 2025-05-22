@@ -21,19 +21,23 @@ class BackblazeRepository:
         return uploaded_file.id_
 
     def get_all_files(self):
-        files = self.bucket.ls()
         return [
             {
                 "fileId": file.id_,
                 "fileName": file.file_info.get("original_filename", "No filename")
-            } 
-            for file, _ in files
+            }
+            for file, _ in self.bucket.ls(latest_only=False)
         ]
-
-    def get_file_byID(self, file_id: str) -> bytes:
+    
+    def get_file_byID(self, file_id: str) -> tuple[bytes, str]:
+        file_info = self.bucket.get_file_info_by_id(file_id)
+       
+        filename = file_info.file_name
+     
         buffer = BytesIO()
         self.bucket.download_file_by_id(file_id).save(buffer)
-        return buffer.getvalue()
+        
+        return buffer.getvalue(), filename  
     
     def delete_file(self, file_id: str) -> None:
         try:
