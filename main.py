@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from route.index import include_routers
 import os
 import uvicorn
@@ -9,6 +10,14 @@ load_dotenv()
 app = FastAPI()
 
 include_routers(app)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],  
+    allow_headers=["*"],
+)
 
 # @app.get("/")
 # async def root():

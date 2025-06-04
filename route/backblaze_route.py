@@ -7,7 +7,7 @@ controller = BackblazeController()
 pathgroup = "media"
 router = APIRouter(prefix=f"/{pathgroup}")
 
-@router.post("/")
+@router.post("")
 async def upload_file(request: UploadRequest):
     if error := validate_upload_request(request.filename, request.file_data):
         return error

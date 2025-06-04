@@ -63,50 +63,7 @@ class BackblazeController:
         except Exception as e:
             return generate_error(str(e), 500, "0005")
 
-    # async def upload_file(self, request: UploadRequest):
-    #     try:
-    #         file_id = self.service.upload_file(request.filename, request.file_data)
-    #         base_url = os.getenv("BASE_URL").rstrip('/')
-    #         url = f"{base_url}/media/{file_id}" 
-    #         return generate_success(
-    #             data={"url": url}, 
-    #             message="File uploaded", 
-    #             code=201
-    #         )
-    #     except Exception as e:
-    #         return generate_error(str(e), 500, "0004")
-
-    # async def get_file_byID(self, file_id: str):
-    #     try:
-    #         file_data, filename = self.service.get_file_byID(file_id)
-            
-    #         content_type = "application/octet-stream"
-    #         if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-    #             content_type = "image/jpeg"
-    #         elif filename.lower().endswith(('.mp4', '.mov', '.mkv')):
-    #             content_type = "video/mp4"
-            
-    #         return Response(
-    #             content=file_data,
-    #             media_type=content_type,
-    #             headers={
-    #                 "Content-Disposition": f"attachment; filename={filename}",
-    #                 "Cache-Control": "no-cache, no-store, must-revalidate"
-    #             }
-    #         )
-    #     except Exception as e:
-    #         return generate_error(str(e), 500, "0005")
-
-    # async def get_all_files(self):
-    #     try:
-    #         files = self.service.get_all_files()
-    #         return generate_success(
-    #             data={"files": files},
-    #             message="OK",
-    #             code=200
-    #         )
-    #     except Exception as e:
-    #         return generate_error(str(e), 500, "0006")
+    
     async def get_all_files(self):
         try:
             files = self.service.get_all_files()
