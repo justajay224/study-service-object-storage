@@ -56,7 +56,7 @@ class BackblazeController:
                 content=file_data,
                 media_type=content_type,
                 headers={
-                    "Content-Disposition": f"attachment; filename={filename}",
+                    "Content-Disposition": f"inline; filename={filename}",
                     "Cache-Control": "no-cache, no-store, must-revalidate"
                 }
             )
